@@ -55,4 +55,14 @@ export class JiraClient {
   async put<T>(path: string, body: unknown): Promise<T> {
     return this.request<T>("PUT", path, body);
   }
+
+  async getBuffer(url: string): Promise<Buffer> {
+    const response = await fetch(url, {
+      headers: { Authorization: `Bearer ${this.token}` },
+    });
+    if (!response.ok) {
+      throw new Error(`Jira API error (${response.status}): ${response.statusText}`);
+    }
+    return Buffer.from(await response.arrayBuffer());
+  }
 }
