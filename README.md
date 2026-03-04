@@ -127,13 +127,15 @@ Config location:
 | `list_projects` | List all Jira projects |
 | `get_project` | Get project details |
 | `search_issues` | Search issues using JQL |
-| `get_issue` | Get full issue details |
+| `get_issue` | Get full issue details + auto-downloads image attachments |
 | `create_issue` | Create a new issue |
 | `update_issue` | Update an existing issue |
 | `get_comments` | Get comments on an issue |
 | `add_comment` | Add a comment to an issue |
 | `get_transitions` | Get available status transitions |
 | `transition_issue` | Change issue status |
+| `list_attachments` | List attachments on an issue |
+| `get_attachment` | Download and display a specific image attachment |
 | `list_boards` | List Scrum/Kanban boards |
 | `get_sprints` | Get sprints for a board |
 
@@ -147,6 +149,8 @@ After configuring Claude Desktop, restart it and try:
 - "What are the comments on MYAPP-42?"
 - "Move MYAPP-42 to In Progress"
 - "Show me active sprints on board 1"
+- "Analyze bug MYAPP-99" (Claude automatically sees attached screenshots)
+- "What attachments are on MYAPP-42?"
 
 ## Troubleshooting
 
