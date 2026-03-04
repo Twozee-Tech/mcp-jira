@@ -2,6 +2,13 @@ import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
 import { JiraClient } from "../jira-client.js";
 
+const IMAGE_MIME_TYPES = new Set([
+  "image/png",
+  "image/jpeg",
+  "image/gif",
+  "image/webp",
+]);
+
 export function registerIssueTools(server: McpServer, jira: JiraClient) {
   server.tool(
     "search_issues",
@@ -33,7 +40,24 @@ export function registerIssueTools(server: McpServer, jira: JiraClient) {
     { issueKey: z.string().describe("The issue key (e.g. PROJ-123)") },
     async ({ issueKey }) => {
       const issue = await jira.get<any>(`/rest/api/2/issue/${encodeURIComponent(issueKey)}`);
-      return { content: [{ type: "text", text: JSON.stringify(issue, null, 2) }] };
+      const content: any[] = [{ type: "text", text: JSON.stringify(issue, null, 2) }];
+
+      const attachments: any[] = issue.fields?.attachment || [];
+      const images = attachments.filter((a: any) => IMAGE_MIME_TYPES.has(a.mimeType));
+
+      for (const img of images) {
+        try {
+          const buffer = await jira.getBuffer(img.content);
+          content.push(
+            { type: "text", text: `\n--- Attachment: ${img.filename} ---` },
+            { type: "image", data: buffer.toString("base64"), mimeType: img.mimeType },
+          );
+        } catch {
+          content.push({ type: "text", text: `\n--- Failed to download: ${img.filename} ---` });
+        }
+      }
+
+      return { content };
     }
   );
 
