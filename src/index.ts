@@ -9,6 +9,7 @@ import { registerCommentTools } from "./tools/comments.js";
 import { registerTransitionTools } from "./tools/transitions.js";
 import { registerBoardTools } from "./tools/boards.js";
 import { registerAttachmentTools } from "./tools/attachments.js";
+import { registerTempoTools } from "./tools/tempo.js";
 
 const baseUrl = process.env.JIRA_BASE_URL;
 const token = process.env.JIRA_TOKEN;
@@ -31,6 +32,7 @@ registerCommentTools(server, jira);
 registerTransitionTools(server, jira);
 registerBoardTools(server, jira);
 registerAttachmentTools(server, jira);
+registerTempoTools(server, jira);
 
 const transport = new StdioServerTransport();
 await server.connect(transport);

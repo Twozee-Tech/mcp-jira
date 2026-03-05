@@ -139,6 +139,9 @@ Config location:
 | `get_attachment` | Download and display a specific image attachment |
 | `list_boards` | List Scrum/Kanban boards |
 | `get_sprints` | Get sprints for a board |
+| `log_work` | Log time on an issue via Tempo (e.g. "2h 30m") |
+| `get_worklogs` | Get Tempo worklogs for a date range |
+| `delete_worklog` | Delete a Tempo worklog entry |
 
 ## Usage Examples
 
@@ -153,6 +156,8 @@ After configuring Claude Desktop, restart it and try:
 - "Find issues about login timeout in project MYAPP"
 - "Analyze bug MYAPP-99" (Claude automatically sees attached screenshots)
 - "What attachments are on MYAPP-42?"
+- "Log 2h on MYAPP-42 for today - code review"
+- "Show my worklogs for this week"
 
 ## Installation Guide for Claude Code
 

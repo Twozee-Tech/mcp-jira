@@ -56,6 +56,10 @@ export class JiraClient {
     return this.request<T>("PUT", path, body);
   }
 
+  async delete<T>(path: string): Promise<T> {
+    return this.request<T>("DELETE", path);
+  }
+
   async getBuffer(url: string): Promise<Buffer> {
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${this.token}` },
