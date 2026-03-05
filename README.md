@@ -127,6 +127,7 @@ Config location:
 | `list_projects` | List all Jira projects |
 | `get_project` | Get project details |
 | `search_issues` | Search issues using JQL |
+| `find_issues` | Full-text search across issues (summary, description, comments) |
 | `get_issue` | Get full issue details + auto-downloads image attachments |
 | `create_issue` | Create a new issue |
 | `update_issue` | Update an existing issue |
@@ -149,6 +150,7 @@ After configuring Claude Desktop, restart it and try:
 - "What are the comments on MYAPP-42?"
 - "Move MYAPP-42 to In Progress"
 - "Show me active sprints on board 1"
+- "Find issues about login timeout in project MYAPP"
 - "Analyze bug MYAPP-99" (Claude automatically sees attached screenshots)
 - "What attachments are on MYAPP-42?"
 

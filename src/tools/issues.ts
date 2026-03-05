@@ -62,6 +62,42 @@ export function registerIssueTools(server: McpServer, jira: JiraClient) {
   );
 
   server.tool(
+    "find_issues",
+    "Full-text search across Jira issues (searches summary, description, comments, attachments). Simpler than JQL - just type what you're looking for.",
+    {
+      query: z.string().describe("Text to search for (e.g. 'login timeout', 'NullPointerException')"),
+      projectKey: z.string().optional().describe("Limit search to a specific project (e.g. MYAPP)"),
+      maxResults: z.number().default(20).describe("Maximum number of results (default 20)"),
+    },
+    async ({ query, projectKey, maxResults }) => {
+      let jql = `text ~ "${query.replace(/"/g, '\\"')}"`;
+      if (projectKey) jql += ` AND project = ${projectKey}`;
+      jql += " ORDER BY updated DESC";
+      const params = new URLSearchParams({
+        jql,
+        maxResults: String(maxResults),
+      });
+      const data = await jira.get<any>(`/rest/api/2/search?${params}`);
+      const issues = data.issues.map((i: any) => ({
+        key: i.key,
+        summary: i.fields.summary,
+        status: i.fields.status?.name,
+        assignee: i.fields.assignee?.displayName,
+        priority: i.fields.priority?.name,
+        updated: i.fields.updated,
+      }));
+      return {
+        content: [{
+          type: "text",
+          text: issues.length
+            ? JSON.stringify(issues, null, 2)
+            : `No issues found for "${query}"`,
+        }],
+      };
+    }
+  );
+
+  server.tool(
     "create_issue",
     "Create a new Jira issue",
     {
