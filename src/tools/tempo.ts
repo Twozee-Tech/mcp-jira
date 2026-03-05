@@ -56,9 +56,25 @@ export function registerTempoTools(server: McpServer, jira: JiraClient) {
       if (issueKey) body.taskKey = [issueKey];
 
       const data = await jira.post<any>("/rest/tempo-timesheets/4/worklogs/search", body);
-      const worklogs = (data.results || data).map((w: any) => ({
+      const results: any[] = data.results || data;
+
+      // Collect unique issue IDs and resolve to keys
+      const issueIds = [...new Set(results.map((w: any) => String(w.originTaskId)))];
+      const idToKey: Record<string, string> = {};
+      await Promise.all(
+        issueIds.map(async (id) => {
+          try {
+            const issue = await jira.get<any>(`/rest/api/2/issue/${id}?fields=summary`);
+            idToKey[id] = issue.key;
+          } catch {
+            idToKey[id] = id;
+          }
+        })
+      );
+
+      const worklogs = results.map((w: any) => ({
         id: w.tempoWorklogId,
-        issue: w.originTaskId,
+        issue: idToKey[String(w.originTaskId)] || w.originTaskId,
         date: w.started,
         timeSpent: formatSeconds(w.timeSpentSeconds),
         worker: w.worker,
