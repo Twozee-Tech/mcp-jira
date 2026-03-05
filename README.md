@@ -152,6 +152,95 @@ After configuring Claude Desktop, restart it and try:
 - "Analyze bug MYAPP-99" (Claude automatically sees attached screenshots)
 - "What attachments are on MYAPP-42?"
 
+## Installation Guide for Claude Code
+
+If a user asks you (Claude) to install this MCP server, follow these steps:
+
+### 1. Check prerequisites
+
+```bash
+node --version   # must be >= 18
+```
+
+If Node.js is missing, tell the user to install it first.
+
+### 2. Install the package globally
+
+```bash
+npm install -g git+https://github.com/Twozee-Tech/mcp-jira.git
+```
+
+### 3. Ask the user for credentials
+
+You need two values:
+- **JIRA_BASE_URL** - their Jira instance URL (e.g. `https://jira.company.com`)
+- **JIRA_TOKEN** - their Personal Access Token (generated in Jira: Profile → Personal Access Tokens)
+
+Do NOT proceed without both values.
+
+### 4. Detect OS and configure Claude Desktop
+
+Find the config file:
+- **Windows**: `%APPDATA%\Claude\claude_desktop_config.json`
+- **macOS**: `~/Library/Application Support/Claude/claude_desktop_config.json`
+- **Linux**: `~/.config/Claude/claude_desktop_config.json`
+
+Read the existing config (it may already have other MCP servers). Add the `jira` entry to `mcpServers`, preserving existing entries.
+
+**On Linux/macOS or WSL2:**
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "command": "mcp-jira",
+      "env": {
+        "JIRA_BASE_URL": "<user's URL>",
+        "JIRA_TOKEN": "<user's token>"
+      }
+    }
+  }
+}
+```
+
+**On Windows native (no WSL2):**
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "command": "mcp-jira",
+      "env": {
+        "JIRA_BASE_URL": "<user's URL>",
+        "JIRA_TOKEN": "<user's token>"
+      }
+    }
+  }
+}
+```
+
+**On Windows with WSL2 (if mcp-jira was installed inside WSL2):**
+```json
+{
+  "mcpServers": {
+    "jira": {
+      "command": "wsl",
+      "args": ["mcp-jira"],
+      "env": {
+        "JIRA_BASE_URL": "<user's URL>",
+        "JIRA_TOKEN": "<user's token>"
+      }
+    }
+  }
+}
+```
+
+### 5. Verify
+
+```bash
+mcp-jira  # should hang waiting for STDIO input - that means it works, Ctrl+C to stop
+```
+
+Tell the user to restart Claude Desktop to load the new MCP server.
+
 ## Troubleshooting
 
 **Server not showing up in Claude Desktop**
