@@ -13,13 +13,13 @@ MCP (Model Context Protocol) server for Jira Server/Data Center integration. All
 ### From GitHub
 
 ```bash
-npm install -g git+https://github.com/Twozee-Tech/mcp-jira.git
+npm install -g git+https://github.com/Lukas-tek-no-logic/mcp-jira.git
 ```
 
 ### From source
 
 ```bash
-git clone https://github.com/Twozee-Tech/mcp-jira.git
+git clone https://github.com/Lukas-tek-no-logic/mcp-jira.git
 cd mcp-jira
 npm install
 npm run build
@@ -46,7 +46,7 @@ Install Node.js and mcp-jira inside WSL2:
 
 ```bash
 # In WSL2 terminal
-npm install -g git+https://github.com/Twozee-Tech/mcp-jira.git
+npm install -g git+https://github.com/Lukas-tek-no-logic/mcp-jira.git
 ```
 
 Open Claude Desktop config file:
@@ -77,7 +77,7 @@ Add the following:
 Install Node.js for Windows from https://nodejs.org, then in PowerShell:
 
 ```powershell
-npm install -g git+https://github.com/Twozee-Tech/mcp-jira.git
+npm install -g git+https://github.com/Lukas-tek-no-logic/mcp-jira.git
 ```
 
 Config:
@@ -99,7 +99,7 @@ Config:
 ### Linux / macOS
 
 ```bash
-npm install -g git+https://github.com/Twozee-Tech/mcp-jira.git
+npm install -g git+https://github.com/Lukas-tek-no-logic/mcp-jira.git
 ```
 
 Config location:
@@ -174,7 +174,7 @@ If Node.js is missing, tell the user to install it first.
 ### 2. Install the package globally
 
 ```bash
-npm install -g git+https://github.com/Twozee-Tech/mcp-jira.git
+npm install -g git+https://github.com/Lukas-tek-no-logic/mcp-jira.git
 ```
 
 ### 3. Ask the user for credentials
