@@ -1,5 +1,6 @@
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 import { z } from "zod";
+import { existsSync } from "fs";
 import { JiraClient } from "../jira-client.js";
 
 const IMAGE_MIME_TYPES = new Set([
@@ -83,6 +84,25 @@ export function registerAttachmentTools(server: McpServer, jira: JiraClient) {
           { type: "image", data: base64, mimeType: target.mimeType },
         ],
       };
+    }
+  );
+
+  server.tool(
+    "upload_attachment",
+    "Upload a local file as an attachment to a Jira issue",
+    {
+      issueKey: z.string().describe("The issue key (e.g. PROJ-123)"),
+      filePath: z.string().describe("Absolute path to the local file to upload"),
+    },
+    async ({ issueKey, filePath }) => {
+      if (!existsSync(filePath)) {
+        return { content: [{ type: "text", text: `File not found: ${filePath}` }] };
+      }
+
+      const result = await jira.uploadAttachment(issueKey, filePath);
+      const uploaded = Array.isArray(result) ? result : [result];
+      const names = uploaded.map((a: any) => a.filename).join(", ");
+      return { content: [{ type: "text", text: `Uploaded: ${names}` }] };
     }
   );
 }

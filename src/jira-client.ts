@@ -60,6 +60,43 @@ export class JiraClient {
     return this.request<T>("DELETE", path);
   }
 
+  async uploadAttachment(issueKey: string, filePath: string): Promise<any[]> {
+    const { readFileSync } = await import("fs");
+    const { basename } = await import("path");
+
+    const filename = basename(filePath);
+    const buffer = readFileSync(filePath);
+
+    const formData = new FormData();
+    const blob = new Blob([buffer]);
+    formData.append("file", blob, filename);
+
+    const url = `${this.baseUrl}/rest/api/2/issue/${encodeURIComponent(issueKey)}/attachments`;
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${this.token}`,
+        "X-Atlassian-Token": "no-check",
+      },
+      body: formData,
+    });
+
+    if (!response.ok) {
+      let errorMessage: string;
+      try {
+        const errorBody = await response.json();
+        errorMessage =
+          errorBody.errorMessages?.join(", ") ||
+          response.statusText;
+      } catch {
+        errorMessage = response.statusText;
+      }
+      throw new Error(`Jira API error (${response.status}): ${errorMessage}`);
+    }
+
+    return response.json();
+  }
+
   async getBuffer(url: string): Promise<Buffer> {
     const response = await fetch(url, {
       headers: { Authorization: `Bearer ${this.token}` },
