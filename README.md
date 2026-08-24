@@ -137,7 +137,7 @@ code .env
 For Jira Server or Data Center, add your Jira URL and Personal Access Token:
 
 ```ini
-JIRA_URL=https://jira.softwaremind.com
+JIRA_URL=https://jira.your-company.com
 JIRA_PERSONAL_TOKEN=TU_WKLEJ_PAT
 JIRA_SSL_VERIFY=true
 ```
