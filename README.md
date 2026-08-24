@@ -140,10 +140,13 @@ For Jira Server or Data Center, add your Jira URL and Personal Access Token:
 JIRA_URL=https://jira.your-company.com
 JIRA_PERSONAL_TOKEN=TU_WKLEJ_PAT
 JIRA_SSL_VERIFY=true
+ALLOW_GLOBAL_CRED_FALLBACK=true
 ```
 
 Replace `TU_WKLEJ_PAT` with your own token. Do not commit `.env` to Git or
 share it: the file grants the container access to Jira with your permissions.
+`ALLOW_GLOBAL_CRED_FALLBACK=true` permits a local MCP client without a
+per-request credential to use the Jira credentials in this file.
 
 ### 2. Download and test the image
 
@@ -187,7 +190,8 @@ the same URL. Keep the Docker container running while the client uses Jira.
 
 Use `127.0.0.1:9000:9000` exactly as shown so Docker exposes the service only
 to this computer. Do not use `-p 9000:9000` or publish this service through a
-tunnel or reverse proxy unless you add proper client authentication.
+tunnel or reverse proxy unless you remove `ALLOW_GLOBAL_CRED_FALLBACK` and add
+proper client authentication.
 
 Before using HTTP transport, verify that the image contains MCP Atlassian
 version 0.22.0 or later. Earlier versions have a critical authentication flaw
