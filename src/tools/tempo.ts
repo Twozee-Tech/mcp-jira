@@ -3,6 +3,16 @@ import { z } from "zod";
 import { JiraClient } from "../jira-client.js";
 
 export function registerTempoTools(server: McpServer, jira: JiraClient) {
+  // Tempo 4 requires an explicit worker key; resolve the token owner once and cache it.
+  let selfKey: string | undefined;
+  async function resolveSelfKey(): Promise<string> {
+    if (!selfKey) {
+      const me = await jira.get<any>("/rest/api/2/myself");
+      selfKey = me.key || me.name;
+    }
+    return selfKey!;
+  }
+
   server.tool(
     "log_work",
     "Log time spent on a Jira issue via Tempo Timesheets",
@@ -23,17 +33,21 @@ export function registerTempoTools(server: McpServer, jira: JiraClient) {
         originTaskId: issueKey,
         started: date,
         timeSpentSeconds: seconds,
+        worker: worker || (await resolveSelfKey()),
       };
       if (comment) body.comment = comment;
-      if (worker) body.worker = worker;
 
-      const result = await jira.post<any>("/rest/tempo-timesheets/4/worklogs", body);
-      const hours = Math.floor(result.timeSpentSeconds / 3600);
-      const mins = Math.floor((result.timeSpentSeconds % 3600) / 60);
+      // Tempo 4 returns an array containing the created worklog.
+      const raw = await jira.post<any>("/rest/tempo-timesheets/4/worklogs", body);
+      const result = Array.isArray(raw) ? raw[0] : raw;
+      if (!result || typeof result.timeSpentSeconds !== "number") {
+        return { content: [{ type: "text", text: `Worklog request sent, but response was unexpected: ${JSON.stringify(raw).slice(0, 500)}` }] };
+      }
+      const issue = result.issue?.key || issueKey;
       return {
         content: [{
           type: "text",
-          text: `Logged ${hours}h ${mins}m on ${result.originTaskId} (${date})${result.comment ? ` - "${result.comment}"` : ""}`,
+          text: `Logged ${formatSeconds(result.timeSpentSeconds)} on ${issue} (${date}) as ${result.worker || body.worker}, worklog id ${result.tempoWorklogId}${result.comment ? ` - "${result.comment}"` : ""}`,
         }],
       };
     }
@@ -41,17 +55,19 @@ export function registerTempoTools(server: McpServer, jira: JiraClient) {
 
   server.tool(
     "get_worklogs",
-    "Get Tempo worklogs for a date range",
+    "Get Tempo worklogs for a date range (defaults to the token owner's worklogs; set allWorkers=true for everyone)",
     {
       from: z.string().describe("Start date (YYYY-MM-DD)"),
       to: z.string().describe("End date (YYYY-MM-DD)"),
-      worker: z.string().optional().describe("Username to filter by (defaults to all)"),
+      worker: z.string().optional().describe("Username to filter by (defaults to token owner)"),
+      allWorkers: z.boolean().optional().describe("Return worklogs of all users (can be very large)"),
       projectKey: z.string().optional().describe("Project key to filter by"),
       issueKey: z.string().optional().describe("Issue key to filter by"),
     },
-    async ({ from, to, worker, projectKey, issueKey }) => {
+    async ({ from, to, worker, allWorkers, projectKey, issueKey }) => {
       const body: any = { from, to };
       if (worker) body.worker = [worker];
+      else if (!allWorkers) body.worker = [await resolveSelfKey()];
       if (projectKey) body.projectKey = [projectKey];
       if (issueKey) body.taskKey = [issueKey];
 
